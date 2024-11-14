@@ -1,0 +1,1 @@
+# student_management_laravel_inertia
