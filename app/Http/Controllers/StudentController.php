@@ -16,9 +16,14 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         $student = Student::search($request)->paginate(10);
+        $classes = ClassResource::collection(Classes::all());
+
 
         return Inertia::render('Student/Index', [
-            'students' => StudentResource::collection($student)
+            'students' => StudentResource::collection($student),
+            'classes' => $classes,
+            'search' => $request->search ?? "",
+            'classId' => $request->class_id ?? ""
         ]);
     }
 
