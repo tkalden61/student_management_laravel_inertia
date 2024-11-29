@@ -1,8 +1,48 @@
+import MagnifyingGlass from '@/Components/icons/MagnifyingGlass';
 import Pagination from '@/Components/Pagination';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useRef } from 'react';
 
 export default function Index({ auth, students }) {
+
+    const page = usePage();
+
+    const isInitialRender = useRef(true);
+
+    const [searchTerm, setSearchTerm] = useState("");
+    const [pageNumber, setPageNumber] = useState("");
+
+    const updatePageNumber = (link) => {
+        setPageNumber(link.url.split('=')[1]);
+    }
+
+    let studentsUrl = useMemo(() => {
+        const url = new URL(route('students.index'));
+
+        url.searchParams.append("page", pageNumber);
+
+        if(searchTerm){
+            url.searchParams.append("search", searchTerm);
+        }
+
+        return url;
+    }, [searchTerm, pageNumber]);
+
+    useEffect(() => {
+        if(isInitialRender.current) {
+            isInitialRender.current = false;
+            return;
+        }
+
+        router.visit(studentsUrl, {
+            preserveScroll: true,
+            preserveState: true,
+            // refresh: true
+        })
+    }, [studentsUrl])
 
     function deleteStudent(id)
     {
@@ -44,6 +84,43 @@ export default function Index({ auth, students }) {
                                     Add Student
                                 </Link>
                             </div>
+                        </div>
+
+                        <div className="flex flex-col justify-start mt-6 sm:flex-row">
+                            <div className="relative col-span-3 text-sm text-gray-800">
+                                <div className="absolute top-0 bottom-0 left-0 flex items-center pl-2 text-gray-500 pointer-events-none">
+                                    <MagnifyingGlass />
+                                </div>
+
+                                <input
+                                    onChange = {(e) =>
+                                        setSearchTerm(e.target.value)
+                                    }
+                                    value={searchTerm}
+                                    type="text"
+                                    autoComplete="off"
+                                    placeholder="Search students data..."
+                                    id="search"
+                                    className="block py-2 pl-10 text-gray-900 border-0 rounded-lg ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                />
+                            </div>
+                            <select
+                                // value={classId}
+                                onChange={(e) => setClassId(e.target.value)}
+                                className="block py-2 ml-5 text-gray-900 border-0 rounded-lg ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+                            >
+                                <option value="">Filter By Class</option>
+                                {/* {classes.data.map((classItem) => {
+                                    return (
+                                        <option
+                                            key={classItem.id}
+                                            value={classItem.id}
+                                        >
+                                            {classItem.name}
+                                        </option>
+                                    );
+                                })} */}
+                            </select>
                         </div>
 
                         <div className="flex flex-col mt-8">
@@ -142,7 +219,7 @@ export default function Index({ auth, students }) {
 
                                     </div>
                                     <div>
-                                        <Pagination meta={students.meta} />
+                                        <Pagination updatePageNumber={updatePageNumber} meta={students.meta} />
                                     </div>
                                 </div>
                             </div>
