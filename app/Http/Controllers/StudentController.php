@@ -13,9 +13,9 @@ use Inertia\Inertia;
 
 class StudentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $student = Student::paginate(10);
+        $student = Student::search($request)->paginate(10);
 
         return Inertia::render('Student/Index', [
             'students' => StudentResource::collection($student)
