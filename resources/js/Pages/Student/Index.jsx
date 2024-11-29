@@ -2,19 +2,17 @@ import MagnifyingGlass from '@/Components/icons/MagnifyingGlass';
 import Pagination from '@/Components/Pagination';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
-import { useEffect, useMemo } from 'react';
-import { useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 
 export default function Index({ auth, students, classes }) {
 
     const page = usePage();
 
-    const isInitialRender = useRef(true);
-
     const [searchTerm, setSearchTerm] = useState(usePage().props.search || "");
+    const [inputValue, setinputValue] = useState(usePage().props.search || "");
     const [pageNumber, setPageNumber] = useState("");
     const [classId, setClassId] = useState(usePage().props.classId || "");
+    const isInitialRender = useRef(true);
 
     const updatePageNumber = (link) => {
         setPageNumber(link.url.split('=')[1]);
@@ -48,6 +46,22 @@ export default function Index({ auth, students, classes }) {
             // refresh: true
         })
     }, [studentsUrl])
+
+    useEffect(() => {
+
+        if(inputValue.length == 0) {
+            return;
+        }
+
+        const handler = setTimeout(() => {
+            setSearchTerm(inputValue);
+            setPageNumber("1");
+        }, 2000)
+
+        return () => {
+            clearTimeout(handler);
+        }
+    }, [inputValue])
 
     function deleteStudent(id)
     {
@@ -99,9 +113,9 @@ export default function Index({ auth, students, classes }) {
 
                                 <input
                                     onChange = {(e) =>
-                                        setSearchTerm(e.target.value)
+                                        setinputValue(e.target.value)
                                     }
-                                    value={searchTerm}
+                                    value={inputValue}
                                     type="text"
                                     autoComplete="off"
                                     placeholder="Search students data..."
