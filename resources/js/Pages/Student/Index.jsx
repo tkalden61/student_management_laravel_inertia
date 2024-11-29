@@ -6,14 +6,15 @@ import { useState } from 'react';
 import { useEffect, useMemo } from 'react';
 import { useRef } from 'react';
 
-export default function Index({ auth, students }) {
+export default function Index({ auth, students, classes }) {
 
     const page = usePage();
 
     const isInitialRender = useRef(true);
 
-    const [searchTerm, setSearchTerm] = useState("");
+    const [searchTerm, setSearchTerm] = useState(usePage().props.search || "");
     const [pageNumber, setPageNumber] = useState("");
+    const [classId, setClassId] = useState(usePage().props.classId || "");
 
     const updatePageNumber = (link) => {
         setPageNumber(link.url.split('=')[1]);
@@ -24,12 +25,16 @@ export default function Index({ auth, students }) {
 
         url.searchParams.append("page", pageNumber);
 
+        if(classId){
+            url.searchParams.append('class_id', classId);
+        }
+
         if(searchTerm){
             url.searchParams.append("search", searchTerm);
         }
 
         return url;
-    }, [searchTerm, pageNumber]);
+    }, [searchTerm, pageNumber, classId]);
 
     useEffect(() => {
         if(isInitialRender.current) {
@@ -105,12 +110,12 @@ export default function Index({ auth, students }) {
                                 />
                             </div>
                             <select
-                                // value={classId}
+                                value={classId}
                                 onChange={(e) => setClassId(e.target.value)}
                                 className="block py-2 ml-5 text-gray-900 border-0 rounded-lg ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 sm:text-sm sm:leading-6"
                             >
                                 <option value="">Filter By Class</option>
-                                {/* {classes.data.map((classItem) => {
+                                {classes.data.map((classItem) => {
                                     return (
                                         <option
                                             key={classItem.id}
@@ -119,7 +124,7 @@ export default function Index({ auth, students }) {
                                             {classItem.name}
                                         </option>
                                     );
-                                })} */}
+                                })}
                             </select>
                         </div>
 
